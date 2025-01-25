@@ -30,7 +30,7 @@ const Navigation = () => {
                 <Link
                   key={item.name}
                   to={item.path}
-                  className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                  className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-white/10 hover:text-white"
                 >
                   {item.name}
                 </Link>
@@ -41,7 +41,7 @@ const Navigation = () => {
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md hover:bg-accent hover:text-accent-foreground focus:outline-none"
+              className="inline-flex items-center justify-center p-2 rounded-md hover:bg-white/10 hover:text-white focus:outline-none"
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -56,7 +56,7 @@ const Navigation = () => {
               <Link
                 key={item.name}
                 to={item.path}
-                className="block px-3 py-2 rounded-md text-base font-medium hover:bg-accent hover:text-accent-foreground"
+                className="block px-3 py-2 rounded-md text-base font-medium hover:bg-white/10 hover:text-white"
                 onClick={() => setIsOpen(false)}
               >
                 {item.name}
