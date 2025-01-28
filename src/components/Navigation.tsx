@@ -32,9 +32,11 @@ const Navigation = () => {
 
   const navItems = [
     { name: "Home", path: "/" },
-    { name: "Quiz", path: "/quiz" },
+    { name: "Course Recommendations", path: "/courses" },
+    { name: "Quiz Generator", path: "/quizzes" },
     { name: "Performance", path: "/performance" },
-    { name: "Research", path: "/research" },
+    { name: "Research Papers", path: "/research" },
+    { name: "Achievements", path: "/achievements" },
     { name: "Notes", path: "/notes" },
   ];
 
