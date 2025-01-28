@@ -9,6 +9,41 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          badge_url: string | null
+          description: string | null
+          earned_at: string
+          id: string
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          badge_url?: string | null
+          description?: string | null
+          earned_at?: string
+          id?: string
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          badge_url?: string | null
+          description?: string | null
+          earned_at?: string
+          id?: string
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "achievements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       onboarding_responses: {
         Row: {
           completed_at: string
