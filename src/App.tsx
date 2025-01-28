@@ -10,7 +10,6 @@ import Dashboard from "./pages/Dashboard";
 import Performance from "./pages/Performance";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
-import Profile from "./pages/Profile";
 import DotBackground from "./components/DotBackground";
 
 const queryClient = new QueryClient();
@@ -76,14 +75,6 @@ const App = () => (
             element={
               <PrivateRoute>
                 <Onboarding />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <PrivateRoute>
-                <Profile />
               </PrivateRoute>
             }
           />

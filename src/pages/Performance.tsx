@@ -4,7 +4,6 @@ import BuddySystem from "@/components/dashboard/BuddySystem";
 import CourseProgress from "@/components/dashboard/CourseProgress";
 import QuizModel from "@/components/dashboard/QuizModel";
 import Navigation from "@/components/Navigation";
-import { Trophy } from "lucide-react";
 
 const Performance = () => {
   return (
@@ -18,15 +17,10 @@ const Performance = () => {
           <CourseProgress />
           <QuizModel />
           
+          {/* Additional feature cards can be added here */}
           <Card className="w-full bg-black/50 border-border/50 p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Trophy className="h-6 w-6" />
-              <h3 className="text-xl font-semibold">Achievements and Badges</h3>
-            </div>
-            <div className="space-y-4">
-              {/* Achievement items will be dynamically loaded here */}
-              <p className="text-muted-foreground">Complete courses and quizzes to earn achievements!</p>
-            </div>
+            <h3 className="text-xl font-semibold mb-4">Additional Features</h3>
+            <p className="text-muted-foreground">Coming soon...</p>
           </Card>
         </div>
       </div>
