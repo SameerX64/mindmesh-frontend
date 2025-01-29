@@ -8,6 +8,7 @@ import Dashboard from "@/pages/Dashboard";
 import Onboarding from "@/pages/Onboarding";
 import Performance from "@/pages/Performance";
 import Profile from "@/pages/Profile";
+import Quiz from "@/pages/Quiz";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -31,6 +32,7 @@ function App() {
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/performance" element={<Performance />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/quiz" element={<Quiz />} />
         </Routes>
         <Toaster />
       </Router>
