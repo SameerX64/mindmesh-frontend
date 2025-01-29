@@ -5,6 +5,14 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import QuizSetup from "@/components/quiz/QuizSetup";
 import QuizResult from "@/components/quiz/QuizResult";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface Question {
   id: number;
@@ -131,6 +139,7 @@ const Quiz = () => {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [showResults, setShowResults] = useState(false);
   const [difficulty, setDifficulty] = useState("medium");
+  const [showWarning, setShowWarning] = useState(false);
   const { toast } = useToast();
 
   const handleStartQuiz = (topic: string, selectedDifficulty: string) => {
@@ -141,11 +150,7 @@ const Quiz = () => {
 
   const handleSubmit = () => {
     if (Object.keys(answers).length < questions.length) {
-      toast({
-        title: "Please answer all questions",
-        description: "You must answer all questions before submitting.",
-        variant: "destructive",
-      });
+      setShowWarning(true);
       return;
     }
     setShowResults(true);
@@ -165,7 +170,6 @@ const Quiz = () => {
   };
 
   const handleAnalyze = () => {
-    // TODO: Implement performance analysis
     toast({
       title: "Coming Soon",
       description: "Performance analysis will be available in the next update.",
@@ -216,6 +220,20 @@ const Quiz = () => {
         </div>
       </div>
 
+      <Dialog open={showWarning} onOpenChange={setShowWarning}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Warning</DialogTitle>
+            <DialogDescription>
+              Please answer all questions before submitting.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setShowWarning(false)}>Continue</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <QuizResult
         isOpen={showResults}
         onClose={() => setShowResults(false)}
@@ -228,4 +246,3 @@ const Quiz = () => {
 };
 
 export default Quiz;
-
