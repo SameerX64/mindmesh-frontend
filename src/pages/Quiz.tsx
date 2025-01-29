@@ -6,6 +6,13 @@ import { useToast } from "@/hooks/use-toast";
 import QuizSetup from "@/components/quiz/QuizSetup";
 import QuizResult from "@/components/quiz/QuizResult";
 
+interface Question {
+  id: number;
+  question: string;
+  options: string[];
+  answer: string;
+}
+
 const questions: Question[] = [
   {
     id: 1,
@@ -221,3 +228,4 @@ const Quiz = () => {
 };
 
 export default Quiz;
+
