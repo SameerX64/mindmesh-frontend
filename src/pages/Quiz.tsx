@@ -2,14 +2,9 @@ import { useState } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-
-interface Question {
-  id: number;
-  question: string;
-  options: string[];
-  answer: string;
-}
+import { useToast } from "@/hooks/use-toast";
+import QuizSetup from "@/components/quiz/QuizSetup";
+import QuizResult from "@/components/quiz/QuizResult";
 
 const questions: Question[] = [
   {
@@ -125,10 +120,17 @@ const questions: Question[] = [
 ];
 
 const Quiz = () => {
+  const [showQuiz, setShowQuiz] = useState(false);
   const [answers, setAnswers] = useState<Record<number, string>>({});
-  const [submitted, setSubmitted] = useState(false);
+  const [showResults, setShowResults] = useState(false);
   const [difficulty, setDifficulty] = useState("medium");
   const { toast } = useToast();
+
+  const handleStartQuiz = (topic: string, selectedDifficulty: string) => {
+    setDifficulty(selectedDifficulty.toLowerCase());
+    setShowQuiz(true);
+    setAnswers({});
+  };
 
   const handleSubmit = () => {
     if (Object.keys(answers).length < questions.length) {
@@ -139,125 +141,81 @@ const Quiz = () => {
       });
       return;
     }
-
-    setSubmitted(true);
-    const score = calculateScore();
-    toast({
-      title: score >= 70 ? "Congratulations!" : "Keep practicing!",
-      description: `Your score: ${score}%${score >= 70 ? " - You passed!" : " - Try again to improve your score."}`,
-      variant: score >= 70 ? "default" : "destructive",
-    });
+    setShowResults(true);
   };
 
   const calculateScore = () => {
     const correctAnswers = questions.filter(
       (q) => answers[q.id] === q.answer
     ).length;
-    return (correctAnswers / questions.length) * 100;
+    return Math.round((correctAnswers / questions.length) * 100);
   };
+
+  const handleRetry = () => {
+    setShowResults(false);
+    setShowQuiz(false);
+    setAnswers({});
+  };
+
+  const handleAnalyze = () => {
+    // TODO: Implement performance analysis
+    toast({
+      title: "Coming Soon",
+      description: "Performance analysis will be available in the next update.",
+    });
+  };
+
+  if (!showQuiz) {
+    return <QuizSetup onStartQuiz={handleStartQuiz} />;
+  }
 
   return (
     <div className="container mx-auto py-8 px-4 min-h-screen">
       <div className="max-w-4xl mx-auto space-y-8">
-        <div className="space-y-4">
-          <h1 className="text-3xl font-bold">Python Quiz</h1>
-          
-          <div className="glass p-6 rounded-lg space-y-4">
-            <div className="space-y-2">
-              <Label>Difficulty Level</Label>
+        <div className="space-y-8">
+          {questions.map((q) => (
+            <div
+              key={q.id}
+              className="glass p-6 rounded-lg space-y-4 animate-fade-up"
+              style={{ animationDelay: `${q.id * 100}ms` }}
+            >
+              <h3 className="text-lg font-medium">
+                {q.id}. {q.question}
+              </h3>
               <RadioGroup
-                value={difficulty}
-                onValueChange={setDifficulty}
-                className="flex space-x-4"
+                value={answers[q.id] || ""}
+                onValueChange={(value) =>
+                  setAnswers((prev) => ({ ...prev, [q.id]: value }))
+                }
+                className="space-y-2"
               >
-                {["easy", "medium", "hard"].map((level) => (
-                  <div key={level} className="flex items-center space-x-2">
-                    <RadioGroupItem value={level} id={level} />
-                    <Label htmlFor={level} className="capitalize">{level}</Label>
+                {q.options.map((option, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <RadioGroupItem value={option} id={`q${q.id}-${index}`} />
+                    <Label htmlFor={`q${q.id}-${index}`}>{option}</Label>
                   </div>
                 ))}
               </RadioGroup>
             </div>
-          </div>
-
-          <div className="space-y-8">
-            {questions.map((q) => (
-              <div
-                key={q.id}
-                className={`glass p-6 rounded-lg space-y-4 ${
-                  submitted
-                    ? answers[q.id] === q.answer
-                      ? "border-2 border-green-500"
-                      : "border-2 border-red-500"
-                    : ""
-                }`}
-              >
-                <h3 className="text-lg font-medium">
-                  {q.id}. {q.question}
-                </h3>
-                <RadioGroup
-                  value={answers[q.id] || ""}
-                  onValueChange={(value) =>
-                    setAnswers((prev) => ({ ...prev, [q.id]: value }))
-                  }
-                  className="space-y-2"
-                  disabled={submitted}
-                >
-                  {q.options.map((option, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <RadioGroupItem value={option} id={`q${q.id}-${index}`} />
-                      <Label
-                        htmlFor={`q${q.id}-${index}`}
-                        className={
-                          submitted
-                            ? option === q.answer
-                              ? "text-green-500"
-                              : answers[q.id] === option
-                              ? "text-red-500"
-                              : ""
-                            : ""
-                        }
-                      >
-                        {option}
-                      </Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-                {submitted && answers[q.id] !== q.answer && (
-                  <p className="text-sm text-green-500">
-                    Correct answer: {q.answer}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
+          ))}
 
           <Button
             onClick={handleSubmit}
-            className="w-full"
-            disabled={submitted}
+            className="w-full animate-fade-up"
+            style={{ animationDelay: `${(questions.length + 1) * 100}ms` }}
           >
             Submit Quiz
           </Button>
-
-          {submitted && (
-            <div className="glass p-6 rounded-lg text-center">
-              <h2 className="text-xl font-bold mb-2">
-                Your Score: {calculateScore()}%
-              </h2>
-              {calculateScore() >= 70 ? (
-                <p className="text-green-500">
-                  Congratulations! You have passed the test!
-                </p>
-              ) : (
-                <p className="text-yellow-500">
-                  Keep practicing! You can do better next time.
-                </p>
-              )}
-            </div>
-          )}
         </div>
       </div>
+
+      <QuizResult
+        isOpen={showResults}
+        onClose={() => setShowResults(false)}
+        score={calculateScore()}
+        onRetry={handleRetry}
+        onAnalyze={handleAnalyze}
+      />
     </div>
   );
 };
