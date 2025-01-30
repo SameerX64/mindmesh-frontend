@@ -37,6 +37,7 @@ serve(async (req) => {
     }
     Make sure the questions are challenging but fair, and cover different aspects of the topic.`;
 
+    console.log('Sending request to NVIDIA API...');
     const response = await fetch(NVIDIA_API_URL, {
       method: 'POST',
       headers: {
@@ -56,6 +57,8 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('NVIDIA API error response:', errorText);
       throw new Error(`NVIDIA API error: ${response.status}`);
     }
 
