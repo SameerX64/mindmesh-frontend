@@ -28,9 +28,9 @@ serve(async (req) => {
       headers: {
         'Authorization': `Bearer ${NVIDIA_API_KEY}`,
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
       body: JSON.stringify({
-        model: "meta/llama3-70b-instruct",
         messages: [
           {
             role: 'system',
@@ -50,13 +50,16 @@ serve(async (req) => {
         ],
         temperature: 0.7,
         max_tokens: 2000,
-        response_format: { type: "json_object" }
+        model: "meta/llama3-70b-instruct",
+        stream: false
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error('NVIDIA API error response:', errorText);
+      console.error('Response status:', response.status);
+      console.error('Response headers:', Object.fromEntries(response.headers.entries()));
       throw new Error(`NVIDIA API error: ${response.status}`);
     }
 
