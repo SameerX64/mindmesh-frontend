@@ -2,14 +2,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   Card,
   CardContent,
   CardDescription,
@@ -18,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Module {
   name: string;
@@ -44,19 +37,19 @@ const CurriculumGenerator = () => {
 
     setIsLoading(true);
     try {
-      const response = await fetch("/api/generate-curriculum", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ subject }),
+      const { data, error } = await supabase.functions.invoke('generate-curriculum', {
+        body: { subject }
       });
 
-      if (!response.ok) throw new Error("Failed to generate curriculum");
+      if (error) throw error;
 
-      const data = await response.json();
-      setCurriculum(data.curriculum);
+      setCurriculum(JSON.parse(data));
+      toast({
+        title: "Success",
+        description: "Curriculum generated successfully!",
+      });
     } catch (error) {
+      console.error('Error:', error);
       toast({
         title: "Error",
         description: "Failed to generate curriculum. Please try again.",

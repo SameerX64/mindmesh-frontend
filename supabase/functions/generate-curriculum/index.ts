@@ -13,6 +13,7 @@ serve(async (req) => {
 
   try {
     const { subject } = await req.json();
+    console.log('Generating curriculum for subject:', subject);
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -43,11 +44,15 @@ serve(async (req) => {
       }),
     });
 
+    if (!response.ok) {
+      throw new Error(`OpenAI API error: ${response.status}`);
+    }
+
     const data = await response.json();
-    const curriculum = JSON.parse(data.choices[0].message.content);
+    console.log('Generated curriculum:', data);
 
     return new Response(
-      JSON.stringify(curriculum),
+      JSON.stringify(data.choices[0].message.content),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       },
