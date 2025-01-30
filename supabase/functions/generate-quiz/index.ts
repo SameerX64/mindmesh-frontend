@@ -17,6 +17,10 @@ serve(async (req) => {
     const { topic } = await req.json();
     console.log('Generating quiz for topic:', topic);
 
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key not configured');
+    }
+
     const prompt = `Generate 10 multiple-choice questions (MCQs) based on the topic: ${topic}.
     Each question should be unique, informative, and relevant to the topic.
     Return the response in the following JSON format:
@@ -39,7 +43,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4',
         messages: [
           { role: 'system', content: 'You are a quiz generator that creates educational multiple choice questions.' },
           { role: 'user', content: prompt }
@@ -52,7 +56,7 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    console.log('Generated quiz:', data);
+    console.log('Generated quiz data:', data);
 
     return new Response(
       data.choices[0].message.content,
