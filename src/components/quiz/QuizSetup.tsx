@@ -8,15 +8,34 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface QuizSetupProps {
   onStartQuiz: (topic: string, difficulty: string) => void;
+  isLoading?: boolean;
 }
 
-const QuizSetup = ({ onStartQuiz }: QuizSetupProps) => {
+const TOPICS = [
+  "AI & ML",
+  "Data Structures & Algorithms",
+  "Physics",
+  "Mathematics",
+  "Web Development",
+  "Python",
+  "Object-Oriented Programming",
+  "Geography",
+  "English Comprehension",
+];
+
+const QuizSetup = ({ onStartQuiz, isLoading }: QuizSetupProps) => {
   const [step, setStep] = useState(1);
-  const [topic, setTopic] = useState("Python");
+  const [topic, setTopic] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [isOpen, setIsOpen] = useState(true);
 
@@ -49,13 +68,19 @@ const QuizSetup = ({ onStartQuiz }: QuizSetupProps) => {
                       <MessageSquare className="w-5 h-5" />
                     </div>
                     <div className="flex-1 glass p-4 rounded-lg">
-                      <p>What topic would you like to be tested on?</p>
-                      <Input
-                        value={topic}
-                        onChange={(e) => setTopic(e.target.value)}
-                        className="mt-2"
-                        placeholder="Enter topic..."
-                      />
+                      <p>Select a topic for your quiz:</p>
+                      <Select onValueChange={setTopic} value={topic}>
+                        <SelectTrigger className="mt-2">
+                          <SelectValue placeholder="Choose a topic" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {TOPICS.map((t) => (
+                            <SelectItem key={t} value={t}>
+                              {t}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                   <div className="ml-14">
@@ -101,11 +126,13 @@ const QuizSetup = ({ onStartQuiz }: QuizSetupProps) => {
                       <MessageSquare className="w-5 h-5" />
                     </div>
                     <div className="flex-1 glass p-4 rounded-lg">
-                      <p>Ready to start your {difficulty} {topic} quiz?</p>
+                      <p>Ready to start your {difficulty} quiz on {topic}?</p>
                     </div>
                   </div>
                   <div className="ml-14">
-                    <Button onClick={handleStartQuiz}>Start Quiz</Button>
+                    <Button onClick={handleStartQuiz} disabled={isLoading}>
+                      {isLoading ? "Generating Quiz..." : "Start Quiz"}
+                    </Button>
                   </div>
                 </div>
               )}

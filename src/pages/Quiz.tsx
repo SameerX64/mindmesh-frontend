@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import QuizSetup from "@/components/quiz/QuizSetup";
 import QuizResult from "@/components/quiz/QuizResult";
 import QuestionCard from "@/components/quiz/QuestionCard";
-import { questions } from "@/data/quizQuestions";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
   DialogContent,
@@ -14,18 +14,47 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
+interface Question {
+  id: number;
+  question: string;
+  options: string[];
+  answer: string;
+}
+
 const Quiz = () => {
   const [showQuiz, setShowQuiz] = useState(false);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [showResults, setShowResults] = useState(false);
   const [difficulty, setDifficulty] = useState("medium");
   const [showWarning, setShowWarning] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleStartQuiz = (topic: string, selectedDifficulty: string) => {
+  const handleStartQuiz = async (topic: string, selectedDifficulty: string) => {
+    setIsLoading(true);
     setDifficulty(selectedDifficulty.toLowerCase());
-    setShowQuiz(true);
-    setAnswers({});
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-quiz', {
+        body: { topic }
+      });
+
+      if (error) throw error;
+
+      const parsedData = JSON.parse(data);
+      setQuestions(parsedData.questions);
+      setShowQuiz(true);
+      setAnswers({});
+    } catch (error) {
+      console.error('Error generating quiz:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate quiz questions. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSubmit = () => {
@@ -47,6 +76,7 @@ const Quiz = () => {
     setShowResults(false);
     setShowQuiz(false);
     setAnswers({});
+    setQuestions([]);
   };
 
   const handleAnalyze = () => {
@@ -57,7 +87,7 @@ const Quiz = () => {
   };
 
   if (!showQuiz) {
-    return <QuizSetup onStartQuiz={handleStartQuiz} />;
+    return <QuizSetup onStartQuiz={handleStartQuiz} isLoading={isLoading} />;
   }
 
   return (
