@@ -1,7 +1,8 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const nvidiaApiKey = Deno.env.get('NVIDIA_API_KEY');
+const NVIDIA_API_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,8 +18,8 @@ serve(async (req) => {
     const { topic } = await req.json();
     console.log('Generating quiz for topic:', topic);
 
-    if (!openAIApiKey) {
-      throw new Error('OpenAI API key not configured');
+    if (!nvidiaApiKey) {
+      throw new Error('NVIDIA API key not configured');
     }
 
     const prompt = `Generate 10 multiple-choice questions (MCQs) based on the topic: ${topic}.
@@ -36,23 +37,26 @@ serve(async (req) => {
     }
     Make sure the questions are challenging but fair, and cover different aspects of the topic.`;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch(NVIDIA_API_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
+        'Authorization': `Bearer ${nvidiaApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'meta/llama3-70b-instruct',
         messages: [
           { role: 'system', content: 'You are a quiz generator that creates educational multiple choice questions.' },
           { role: 'user', content: prompt }
         ],
+        temperature: 0.7,
+        top_p: 1,
+        max_tokens: 1024,
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
+      throw new Error(`NVIDIA API error: ${response.status}`);
     }
 
     const data = await response.json();
