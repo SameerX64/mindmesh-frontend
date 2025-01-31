@@ -85,7 +85,8 @@ const Onboarding = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
-      const { error } = await supabase
+      // Save onboarding responses
+      const { error: responseError } = await supabase
         .from("onboarding_responses")
         .insert([
           {
@@ -98,7 +99,16 @@ const Onboarding = () => {
           },
         ]);
 
-      if (error) throw error;
+      if (responseError) throw responseError;
+
+      // Update onboarding status
+      const { error: statusError } = await supabase
+        .from("onboarding_status")
+        .update({ is_completed: true, completed_at: new Date().toISOString() })
+        .eq("user_id", user.id);
+
+      if (statusError) throw statusError;
+
       navigate("/dashboard");
     } catch (error: any) {
       toast({
