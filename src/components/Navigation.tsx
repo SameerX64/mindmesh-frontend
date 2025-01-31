@@ -3,10 +3,12 @@ import { Menu, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { useToast } from "@/components/ui/use-toast";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   // Check authentication and onboarding status
   const { data: session } = useQuery({
@@ -21,13 +23,45 @@ const Navigation = () => {
     queryKey: ['onboardingStatus', session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return null;
+      
+      // Try to get existing onboarding status
       const { data, error } = await supabase
         .from('onboarding_status')
         .select('*')
         .eq('user_id', session.user.id)
-        .single();
+        .maybeSingle();
       
-      if (error) throw error;
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch onboarding status",
+          variant: "destructive",
+        });
+        throw error;
+      }
+
+      // If no status exists, create one
+      if (!data) {
+        const { data: newStatus, error: insertError } = await supabase
+          .from('onboarding_status')
+          .insert([
+            { user_id: session.user.id, is_completed: false }
+          ])
+          .select()
+          .maybeSingle();
+
+        if (insertError) {
+          toast({
+            title: "Error",
+            description: "Failed to create onboarding status",
+            variant: "destructive",
+          });
+          throw insertError;
+        }
+
+        return newStatus;
+      }
+
       return data;
     },
     enabled: !!session?.user?.id,
@@ -42,13 +76,13 @@ const Navigation = () => {
 
   // If user is authenticated but hasn't completed onboarding, redirect to onboarding
   useEffect(() => {
-    if (session && !onboardingStatus?.is_completed && window.location.pathname !== '/onboarding') {
+    if (session && onboardingStatus && !onboardingStatus.is_completed && window.location.pathname !== '/onboarding') {
       navigate('/onboarding');
     }
   }, [session, onboardingStatus, navigate]);
 
   // Don't show navigation if user is not authenticated or hasn't completed onboarding
-  if (!session || !onboardingStatus?.is_completed) {
+  if (!session || (onboardingStatus && !onboardingStatus.is_completed)) {
     return null;
   }
 
