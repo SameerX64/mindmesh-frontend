@@ -32,7 +32,7 @@ const Auth = () => {
         });
 
         if (error) throw error;
-        navigate("/dashboard");
+        navigate("/");
       } else {
         if (formData.password !== formData.confirmPassword) {
           toast({
@@ -43,7 +43,7 @@ const Auth = () => {
           return;
         }
 
-        // Sign up the user with metadata
+        // Sign up the user
         const { data: authData, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -57,31 +57,8 @@ const Auth = () => {
 
         if (signUpError) throw signUpError;
 
-        // If signup successful and we have a user
+        // If signup successful
         if (authData.user) {
-          // Create profile using service role to bypass RLS
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .insert([
-              {
-                id: authData.user.id,
-                username: formData.username,
-                full_name: formData.fullName,
-              }
-            ])
-            .select()
-            .single();
-
-          if (profileError) {
-            console.error("Error creating profile:", profileError);
-            toast({
-              title: "Error",
-              description: "Failed to create user profile",
-              variant: "destructive",
-            });
-            return;
-          }
-
           // Create initial onboarding status
           const { error: onboardingError } = await supabase
             .from('onboarding_status')
@@ -94,6 +71,12 @@ const Auth = () => {
 
           if (onboardingError) {
             console.error("Error creating onboarding status:", onboardingError);
+            toast({
+              title: "Error",
+              description: "Failed to create onboarding status",
+              variant: "destructive",
+            });
+            return;
           }
 
           toast({
