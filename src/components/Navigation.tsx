@@ -19,16 +19,62 @@ const Navigation = () => {
     },
   });
 
-  const { data: onboardingStatus } = useQuery({
-    queryKey: ['onboardingStatus', session?.user?.id],
+  // First check/create profile
+  const { data: profile } = useQuery({
+    queryKey: ['profile', session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return null;
+      
+      // Try to get existing profile
+      const { data: existingProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .maybeSingle();
+      
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        throw profileError;
+      }
+
+      // If no profile exists, create one
+      if (!existingProfile) {
+        const { data: newProfile, error: insertError } = await supabase
+          .from('profiles')
+          .insert([
+            { 
+              id: session.user.id,
+              username: session.user.email?.split('@')[0], // Default username from email
+              full_name: session.user.user_metadata.full_name || null
+            }
+          ])
+          .select()
+          .maybeSingle();
+
+        if (insertError) {
+          console.error('Error creating profile:', insertError);
+          throw insertError;
+        }
+
+        return newProfile;
+      }
+
+      return existingProfile;
+    },
+    enabled: !!session?.user?.id,
+  });
+
+  // Then check/create onboarding status
+  const { data: onboardingStatus } = useQuery({
+    queryKey: ['onboardingStatus', profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return null;
       
       // Try to get existing onboarding status
       const { data, error } = await supabase
         .from('onboarding_status')
         .select('*')
-        .eq('user_id', session.user.id)
+        .eq('user_id', profile.id)
         .maybeSingle();
       
       if (error) {
@@ -45,7 +91,7 @@ const Navigation = () => {
         const { data: newStatus, error: insertError } = await supabase
           .from('onboarding_status')
           .insert([
-            { user_id: session.user.id, is_completed: false }
+            { user_id: profile.id, is_completed: false }
           ])
           .select()
           .maybeSingle();
@@ -64,7 +110,7 @@ const Navigation = () => {
 
       return data;
     },
-    enabled: !!session?.user?.id,
+    enabled: !!profile?.id,
   });
 
   // If user is not authenticated, redirect to auth page
