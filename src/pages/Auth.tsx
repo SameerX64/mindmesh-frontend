@@ -43,7 +43,8 @@ const Auth = () => {
           return;
         }
 
-        const { error } = await supabase.auth.signUp({
+        // Sign up the user
+        const { data: authData, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
           options: {
@@ -54,7 +55,36 @@ const Auth = () => {
           },
         });
 
-        if (error) throw error;
+        if (signUpError) throw signUpError;
+
+        // Create profile after successful signup
+        if (authData.user) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert([
+              {
+                id: authData.user.id,
+                username: formData.username,
+                full_name: formData.fullName,
+              }
+            ]);
+
+          if (profileError) {
+            console.error("Error creating profile:", profileError);
+            toast({
+              title: "Error",
+              description: "Failed to create user profile",
+              variant: "destructive",
+            });
+            return;
+          }
+        }
+
+        toast({
+          title: "Success",
+          description: "Account created successfully! Please check your email to verify your account.",
+        });
+        
         navigate("/onboarding");
       }
     } catch (error: any) {
