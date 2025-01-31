@@ -85,6 +85,24 @@ const Onboarding = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
+      // First, check if a profile exists
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profileError) throw profileError;
+
+      // If no profile exists, create one
+      if (!profile) {
+        const { error: insertProfileError } = await supabase
+          .from("profiles")
+          .insert([{ id: user.id }]);
+
+        if (insertProfileError) throw insertProfileError;
+      }
+
       // Save onboarding responses
       const { error: responseError } = await supabase
         .from("onboarding_responses")
