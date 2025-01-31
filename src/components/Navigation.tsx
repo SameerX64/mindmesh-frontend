@@ -1,44 +1,67 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
-  const [timeoutId, setTimeoutId] = useState<number | null>(null);
+  const navigate = useNavigate();
+  
+  // Check authentication and onboarding status
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    },
+  });
 
-  const handleMouseEnter = () => {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-      setTimeoutId(null);
+  const { data: onboardingStatus } = useQuery({
+    queryKey: ['onboardingStatus', session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
+      const { data, error } = await supabase
+        .from('onboarding_status')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!session?.user?.id,
+  });
+
+  // If user is not authenticated, redirect to auth page
+  useEffect(() => {
+    if (!session && window.location.pathname !== '/auth') {
+      navigate('/auth');
     }
-    setIsVisible(true);
-  };
+  }, [session, navigate]);
 
-  const handleMouseLeave = () => {
-    const id = window.setTimeout(() => {
-      setIsVisible(false);
-    }, 1000);
-    setTimeoutId(Number(id));
-  };
+  // If user is authenticated but hasn't completed onboarding, redirect to onboarding
+  useEffect(() => {
+    if (session && !onboardingStatus?.is_completed && window.location.pathname !== '/onboarding') {
+      navigate('/onboarding');
+    }
+  }, [session, onboardingStatus, navigate]);
+
+  // Don't show navigation if user is not authenticated or hasn't completed onboarding
+  if (!session || !onboardingStatus?.is_completed) {
+    return null;
+  }
 
   const navItems = [
     { name: "Home", path: "/" },
+    { name: "Course", path: "/course" },
     { name: "Quiz", path: "/quiz" },
-    { name: "Research", path: "/research" },
-    { name: "Performance", path: "/performance" },
     { name: "Notes", path: "/notes" },
     { name: "Profile", path: "/profile" },
   ];
 
   return (
-    <nav 
-      className={`fixed top-0 w-full z-50 glass transition-opacity duration-300 ${
-        isVisible ? 'opacity-100' : 'opacity-0'
-      }`}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
+    <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-sm border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0">
@@ -74,7 +97,7 @@ const Navigation = () => {
 
       {isOpen && (
         <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 glass">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-black/80 backdrop-blur-sm">
             {navItems.map((item) => (
               <Link
                 key={item.name}
