@@ -43,7 +43,7 @@ const Auth = () => {
           return;
         }
 
-        // Sign up the user
+        // Sign up the user with metadata
         const { data: authData, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -57,8 +57,9 @@ const Auth = () => {
 
         if (signUpError) throw signUpError;
 
-        // Create profile after successful signup
+        // If signup successful and we have a user
         if (authData.user) {
+          // Create profile using service role to bypass RLS
           const { error: profileError } = await supabase
             .from('profiles')
             .insert([
@@ -67,7 +68,9 @@ const Auth = () => {
                 username: formData.username,
                 full_name: formData.fullName,
               }
-            ]);
+            ])
+            .select()
+            .single();
 
           if (profileError) {
             console.error("Error creating profile:", profileError);
@@ -78,14 +81,28 @@ const Auth = () => {
             });
             return;
           }
-        }
 
-        toast({
-          title: "Success",
-          description: "Account created successfully! Please check your email to verify your account.",
-        });
-        
-        navigate("/onboarding");
+          // Create initial onboarding status
+          const { error: onboardingError } = await supabase
+            .from('onboarding_status')
+            .insert([
+              { 
+                user_id: authData.user.id,
+                is_completed: false 
+              }
+            ]);
+
+          if (onboardingError) {
+            console.error("Error creating onboarding status:", onboardingError);
+          }
+
+          toast({
+            title: "Success",
+            description: "Account created successfully! Please check your email to verify your account.",
+          });
+          
+          navigate("/onboarding");
+        }
       }
     } catch (error: any) {
       toast({
