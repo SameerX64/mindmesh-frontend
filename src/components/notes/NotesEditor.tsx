@@ -19,6 +19,15 @@ const NotesEditor = () => {
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const { toast } = useToast();
 
+  // Get the current user's session
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    },
+  });
+
   const { data: notes, refetch } = useQuery({
     queryKey: ['notes'],
     queryFn: async () => {
@@ -34,17 +43,34 @@ const NotesEditor = () => {
 
   const handleSave = async () => {
     try {
+      if (!session?.user?.id) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to save notes",
+          variant: "destructive",
+        });
+        return;
+      }
+
       if (selectedNote) {
         const { error } = await supabase
           .from('notes')
-          .update({ title, content })
+          .update({ 
+            title, 
+            content,
+            user_id: session.user.id 
+          })
           .eq('id', selectedNote.id);
 
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from('notes')
-          .insert([{ title, content }]);
+          .insert([{ 
+            title, 
+            content,
+            user_id: session.user.id 
+          }]);
 
         if (error) throw error;
       }
