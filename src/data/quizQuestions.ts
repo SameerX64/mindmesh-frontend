@@ -1,114 +1,47 @@
-import { Question } from "@/types/quiz";
-
-export const questions: Question[] = [
+export const questions = [
   {
     id: 1,
-    question: "What is the primary design philosophy of Python?",
+    question: "What is JavaScript primarily used for?",
     options: [
-      "Code readability with significant indentation",
-      "Object-oriented programming",
-      "Functional programming",
-      "Structured programming"
+      "Server-side programming only",
+      "Client-side web development",
+      "Database management",
+      "Operating system development"
     ],
-    answer: "Code readability with significant indentation"
+    answer: "Client-side web development"
   },
   {
     id: 2,
-    question: "What is Python's memory management approach?",
-    options: [
-      "Dynamic typing and garbage collection",
-      "Static typing and manual memory management",
-      "Reference counting and cycle-detecting garbage collector",
-      "Hybrid approach"
-    ],
-    answer: "Reference counting and cycle-detecting garbage collector"
+    question: "Which keyword is used to declare variables in JavaScript?",
+    options: ["var", "let", "const", "All of the above"],
+    answer: "All of the above"
   },
   {
     id: 3,
-    question: "Who is the creator of Python?",
+    question: "What is the correct way to write a comment in JavaScript?",
     options: [
-      "Guido van Rossum",
-      "Monty Python",
-      "Alex Martelli",
-      "None of the above"
+      "<!-- This is a comment -->",
+      "// This is a comment",
+      "/* This is a comment */",
+      "Both // and /* */ are correct"
     ],
-    answer: "Guido van Rossum"
+    answer: "Both // and /* */ are correct"
   },
   {
     id: 4,
-    question: "What is the name of the British comedy series that inspired the name \"Python\"?",
+    question: "What is the purpose of the 'typeof' operator in JavaScript?",
     options: [
-      "Monty Python's Flying Circus",
-      "The Office",
-      "Python's Flying Circus",
-      "None of the above"
+      "To check if a variable exists",
+      "To determine the type of a value",
+      "To create a new variable",
+      "To compare two values"
     ],
-    answer: "Monty Python's Flying Circus"
+    answer: "To determine the type of a value"
   },
   {
     id: 5,
-    question: "What is the latest stable release of Python as of October 2024?",
-    options: [
-      "Python 3.12",
-      "Python 3.13",
-      "Python 3.14",
-      "Python 3.15"
-    ],
-    answer: "Python 3.13"
-  },
-  {
-    id: 6,
-    question: "What is the purpose of the Steering Council in Python?",
-    options: [
-      "To lead the project",
-      "To make decisions on new features",
-      "To maintain backward compatibility",
-      "To promote Python"
-    ],
-    answer: "To lead the project"
-  },
-  {
-    id: 7,
-    question: "What is the significance of the \"Zen of Python\"?",
-    options: [
-      "It is a set of rules for Python development",
-      "It is a guideline for Python design philosophy",
-      "It is a criticism of Python's complexity",
-      "It is a set of best practices for Python programming"
-    ],
-    answer: "It is a guideline for Python design philosophy"
-  },
-  {
-    id: 8,
-    question: "What is the main advantage of Python's modularity?",
-    options: [
-      "It makes Python more complex",
-      "It makes Python more extensible",
-      "It makes Python faster",
-      "It makes Python more readable"
-    ],
-    answer: "It makes Python more extensible"
-  },
-  {
-    id: 9,
-    question: "What is the purpose of the match and case keywords in Python 3.10?",
-    options: [
-      "For structural pattern matching statements",
-      "For exception handling",
-      "For list comprehensions",
-      "For functional programming"
-    ],
-    answer: "For structural pattern matching statements"
-  },
-  {
-    id: 10,
-    question: "What is the significance of Python 3.15?",
-    options: [
-      "It is the latest stable release",
-      "It makes UTF-8 mode default",
-      "It introduces a new garbage collector",
-      "It drops support for Python 2.7"
-    ],
-    answer: "It makes UTF-8 mode default"
+    question: "Which method is used to add elements to the end of an array?",
+    options: ["push()", "pop()", "shift()", "unshift()"],
+    answer: "push()"
   }
 ];

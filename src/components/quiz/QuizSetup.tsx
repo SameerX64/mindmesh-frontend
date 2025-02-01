@@ -8,30 +8,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 interface QuizSetupProps {
   onStartQuiz: (topic: string, difficulty: string) => void;
   isLoading?: boolean;
 }
-
-const TOPICS = [
-  "AI & ML",
-  "Data Structures & Algorithms",
-  "Physics",
-  "Mathematics",
-  "Web Development",
-  "Python",
-  "Object-Oriented Programming",
-  "Geography",
-  "English Comprehension",
-];
 
 const QuizSetup = ({ onStartQuiz, isLoading }: QuizSetupProps) => {
   const [step, setStep] = useState(1);
@@ -68,19 +50,14 @@ const QuizSetup = ({ onStartQuiz, isLoading }: QuizSetupProps) => {
                       <MessageSquare className="w-5 h-5" />
                     </div>
                     <div className="flex-1 glass p-4 rounded-lg">
-                      <p>Select a topic for your quiz:</p>
-                      <Select onValueChange={setTopic} value={topic}>
-                        <SelectTrigger className="mt-2">
-                          <SelectValue placeholder="Choose a topic" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {TOPICS.map((t) => (
-                            <SelectItem key={t} value={t}>
-                              {t}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <p>Enter a topic for your quiz:</p>
+                      <Input
+                        type="text"
+                        placeholder="e.g., JavaScript, Python, React"
+                        value={topic}
+                        onChange={(e) => setTopic(e.target.value)}
+                        className="mt-2"
+                      />
                     </div>
                   </div>
                   <div className="ml-14">

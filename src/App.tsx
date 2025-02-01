@@ -27,7 +27,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <Navigation />
-        <div className="pt-16"> {/* Add padding to account for fixed navbar */}
+        <div className="pt-16">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
