@@ -158,6 +158,44 @@ export type Database = {
           },
         ]
       }
+      course_videos: {
+        Row: {
+          course_id: string | null
+          description: string | null
+          duration: number | null
+          id: string
+          sequence_number: number
+          title: string
+          video_url: string
+        }
+        Insert: {
+          course_id?: string | null
+          description?: string | null
+          duration?: number | null
+          id?: string
+          sequence_number: number
+          title: string
+          video_url: string
+        }
+        Update: {
+          course_id?: string | null
+          description?: string | null
+          duration?: number | null
+          id?: string
+          sequence_number?: number
+          title?: string
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_videos_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       courses: {
         Row: {
           created_at: string
@@ -340,6 +378,44 @@ export type Database = {
           username?: string | null
         }
         Relationships: []
+      }
+      research_papers: {
+        Row: {
+          created_at: string
+          file_url: string
+          id: string
+          summary: string | null
+          title: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          file_url: string
+          id?: string
+          summary?: string | null
+          title: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          file_url?: string
+          id?: string
+          summary?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_papers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
