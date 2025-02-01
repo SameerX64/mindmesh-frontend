@@ -71,44 +71,40 @@ const Navigation = () => {
       if (!profile?.id) return null;
       
       // Try to get existing onboarding status
-      const { data, error } = await supabase
+      const { data: existingStatus, error: statusError } = await supabase
         .from('onboarding_status')
         .select('*')
         .eq('user_id', profile.id)
         .maybeSingle();
       
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to fetch onboarding status",
-          variant: "destructive",
-        });
-        throw error;
+      if (statusError) {
+        console.error('Error fetching onboarding status:', statusError);
+        throw statusError;
       }
 
       // If no status exists, create one
-      if (!data) {
+      if (!existingStatus) {
         const { data: newStatus, error: insertError } = await supabase
           .from('onboarding_status')
           .insert([
-            { user_id: profile.id, is_completed: false }
+            { 
+              user_id: profile.id,
+              is_completed: false,
+              created_at: new Date().toISOString()
+            }
           ])
           .select()
           .maybeSingle();
 
         if (insertError) {
-          toast({
-            title: "Error",
-            description: "Failed to create onboarding status",
-            variant: "destructive",
-          });
+          console.error('Error creating onboarding status:', insertError);
           throw insertError;
         }
 
         return newStatus;
       }
 
-      return data;
+      return existingStatus;
     },
     enabled: !!profile?.id,
   });
