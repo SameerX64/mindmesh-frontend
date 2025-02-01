@@ -84,7 +84,9 @@ export type Database = {
           completed: boolean | null
           created_at: string
           id: string
+          last_quiz_attempt: string | null
           quiz_passed: boolean | null
+          quiz_score: number | null
           updated_at: string
           user_id: string | null
           video_id: string
@@ -93,7 +95,9 @@ export type Database = {
           completed?: boolean | null
           created_at?: string
           id?: string
+          last_quiz_attempt?: string | null
           quiz_passed?: boolean | null
+          quiz_score?: number | null
           updated_at?: string
           user_id?: string | null
           video_id: string
@@ -102,7 +106,9 @@ export type Database = {
           completed?: boolean | null
           created_at?: string
           id?: string
+          last_quiz_attempt?: string | null
           quiz_passed?: boolean | null
+          quiz_score?: number | null
           updated_at?: string
           user_id?: string | null
           video_id?: string
@@ -116,6 +122,77 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      course_quizzes: {
+        Row: {
+          correct_answer: string
+          course_id: string | null
+          created_at: string
+          id: string
+          options: string[]
+          question: string
+        }
+        Insert: {
+          correct_answer: string
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          options: string[]
+          question: string
+        }
+        Update: {
+          correct_answer?: string
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          options?: string[]
+          question?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_quizzes_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          created_at: string
+          description: string | null
+          difficulty_level: string
+          id: string
+          is_free: boolean | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          difficulty_level: string
+          id?: string
+          is_free?: boolean | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          difficulty_level?: string
+          id?: string
+          is_free?: boolean | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_id?: string | null
+        }
+        Relationships: []
       }
       notes: {
         Row: {
