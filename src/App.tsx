@@ -26,8 +26,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <div className="min-h-screen">
-          <Navigation />
+        <Navigation />
+        <div className="pt-16">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
@@ -40,8 +40,8 @@ function App() {
             <Route path="/notes" element={<Notes />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-          <Toaster />
         </div>
+        <Toaster />
       </Router>
     </QueryClientProvider>
   );
