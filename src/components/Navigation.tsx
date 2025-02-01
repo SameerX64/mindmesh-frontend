@@ -109,13 +109,6 @@ const Navigation = () => {
     enabled: !!profile?.id,
   });
 
-  // If user is not authenticated, redirect to auth page
-  useEffect(() => {
-    if (!session && window.location.pathname !== '/auth') {
-      navigate('/auth');
-    }
-  }, [session, navigate]);
-
   // If user is authenticated but hasn't completed onboarding, redirect to onboarding
   useEffect(() => {
     if (session && onboardingStatus && !onboardingStatus.is_completed && window.location.pathname !== '/onboarding') {
@@ -123,17 +116,15 @@ const Navigation = () => {
     }
   }, [session, onboardingStatus, navigate]);
 
-  // Don't show navigation if user is not authenticated or hasn't completed onboarding
-  if (!session || (onboardingStatus && !onboardingStatus.is_completed)) {
-    return null;
-  }
-
-  const navItems = [
+  // Modified: Show navigation for both authenticated and unauthenticated users
+  const navItems = session ? [
     { name: "Home", path: "/" },
     { name: "Course", path: "/course" },
     { name: "Quiz", path: "/quiz" },
     { name: "Notes", path: "/notes" },
     { name: "Profile", path: "/profile" },
+  ] : [
+    { name: "Home", path: "/" },
   ];
 
   return (
@@ -157,6 +148,16 @@ const Navigation = () => {
                   {item.name}
                 </Link>
               ))}
+              {!session && (
+                <>
+                  <Link
+                    to="/auth"
+                    className="px-3 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+                  >
+                    Sign In
+                  </Link>
+                </>
+              )}
             </div>
           </div>
           
@@ -184,6 +185,15 @@ const Navigation = () => {
                 {item.name}
               </Link>
             ))}
+            {!session && (
+              <Link
+                to="/auth"
+                className="block px-3 py-2 rounded-md text-base font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+                onClick={() => setIsOpen(false)}
+              >
+                Sign In
+              </Link>
+            )}
           </div>
         </div>
       )}
