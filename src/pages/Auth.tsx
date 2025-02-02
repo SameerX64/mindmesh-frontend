@@ -59,8 +59,25 @@ const Auth = () => {
 
         // If signup successful and we have a user
         if (authData.user) {
-          // Wait for the trigger to create the profile
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          // Wait longer for the profile trigger to complete
+          await new Promise(resolve => setTimeout(resolve, 2000));
+
+          // Verify profile was created
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', authData.user.id)
+            .single();
+
+          if (profileError || !profile) {
+            console.error("Error verifying profile:", profileError);
+            toast({
+              title: "Error",
+              description: "Account created but profile setup failed. Please try logging in after a few moments.",
+              variant: "destructive",
+            });
+            return;
+          }
 
           // Create initial onboarding status with explicit user_id
           const { error: onboardingError } = await supabase
@@ -79,7 +96,7 @@ const Auth = () => {
             console.error("Error creating onboarding status:", onboardingError);
             toast({
               title: "Warning",
-              description: "Account created but there was an issue with onboarding setup. Please try logging in.",
+              description: "Account created but there was an issue with onboarding setup. Please try logging in after a few moments.",
               variant: "destructive",
             });
             return;
