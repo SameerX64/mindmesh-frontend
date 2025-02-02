@@ -67,13 +67,23 @@ const Auth = () => {
             .from('profiles')
             .select('*')
             .eq('id', authData.user.id)
-            .single();
+            .maybeSingle();
 
-          if (profileError || !profile) {
+          if (profileError) {
             console.error("Error verifying profile:", profileError);
             toast({
               title: "Error",
-              description: "Account created but profile setup failed. Please try logging in after a few moments.",
+              description: "Error verifying profile. Please try logging in after a few moments.",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          if (!profile) {
+            console.error("Profile not found after creation");
+            toast({
+              title: "Error",
+              description: "Profile creation pending. Please try logging in after a few moments.",
               variant: "destructive",
             });
             return;
@@ -90,7 +100,7 @@ const Auth = () => {
               }
             ])
             .select('*')
-            .single();
+            .maybeSingle();
 
           if (onboardingError) {
             console.error("Error creating onboarding status:", onboardingError);
