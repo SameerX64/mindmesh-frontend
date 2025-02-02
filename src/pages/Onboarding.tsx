@@ -85,24 +85,6 @@ const Onboarding = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
-      // First, check if a profile exists
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (profileError) throw profileError;
-
-      // If no profile exists, create one
-      if (!profile) {
-        const { error: insertProfileError } = await supabase
-          .from("profiles")
-          .insert([{ id: user.id }]);
-
-        if (insertProfileError) throw insertProfileError;
-      }
-
       // Save onboarding responses
       const { error: responseError } = await supabase
         .from("onboarding_responses")
@@ -114,6 +96,7 @@ const Onboarding = () => {
             learning_style: answers.learning_style || [],
             daily_time: answers.daily_time || "",
             specific_goals: answers.specific_goals || "",
+            completed_at: new Date().toISOString(),
           },
         ]);
 
@@ -122,16 +105,26 @@ const Onboarding = () => {
       // Update onboarding status
       const { error: statusError } = await supabase
         .from("onboarding_status")
-        .update({ is_completed: true, completed_at: new Date().toISOString() })
+        .update({ 
+          is_completed: true, 
+          completed_at: new Date().toISOString() 
+        })
         .eq("user_id", user.id);
 
       if (statusError) throw statusError;
 
+      toast({
+        title: "Success",
+        description: "Your preferences have been saved. Welcome to CogniLearn!",
+      });
+
+      // Redirect to home page after successful completion
       navigate("/dashboard");
     } catch (error: any) {
+      console.error("Onboarding error:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to complete onboarding",
         variant: "destructive",
       });
     } finally {
