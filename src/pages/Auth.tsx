@@ -49,66 +49,65 @@ const Auth = () => {
           throw new Error("Profile not found. Please contact support.");
         }
 
-        navigate("/dashboard");
+        // Check onboarding status
+        const { data: onboardingStatus, error: onboardingError } = await supabase
+          .from('onboarding_status')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (onboardingError) {
+          console.error("Error fetching onboarding status:", onboardingError);
+          throw new Error("Failed to verify onboarding status");
+        }
+
+        // Redirect based on onboarding status
+        if (!onboardingStatus?.is_completed) {
+          navigate("/onboarding");
+        } else {
+          navigate("/dashboard");
+        }
+
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully signed in.",
+        });
       } else {
         // Sign up flow
-        try {
-          const { data: authData, error: signUpError } = await supabase.auth.signUp({
-            email: formData.email,
-            password: formData.password,
-            options: {
-              data: {
-                username: formData.username,
-                full_name: formData.fullName,
-              },
+        const { data: authData, error: signUpError } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            data: {
+              username: formData.username,
+              full_name: formData.fullName,
             },
-          });
+          },
+        });
 
-          // Check for user already exists error specifically
-          if (signUpError) {
-            const errorMessage = signUpError.message?.toLowerCase() || '';
-            if (errorMessage.includes('already registered') || errorMessage.includes('already exists')) {
-              toast({
-                title: "Account Already Exists",
-                description: "This email is already registered. Please sign in instead.",
-                variant: "destructive",
-              });
-              setLoading(false);
-              return;
-            }
-            throw signUpError;
-          }
-
-          if (authData.user) {
-            // Wait for the profile trigger to complete
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            // Create initial onboarding status
-            const { error: onboardingError } = await supabase
-              .from('onboarding_status')
-              .insert([
-                { 
-                  user_id: authData.user.id,
-                  is_completed: false,
-                  created_at: new Date().toISOString()
-                }
-              ]);
-
-            if (onboardingError) {
-              console.error("Error creating onboarding status:", onboardingError);
-              throw new Error("Failed to initialize onboarding");
-            }
-
+        if (signUpError) {
+          const errorMessage = signUpError.message?.toLowerCase() || '';
+          if (errorMessage.includes('already registered') || errorMessage.includes('already exists')) {
             toast({
-              title: "Success",
-              description: "Account created successfully! Please check your email to verify your account.",
+              title: "Account Already Exists",
+              description: "This email is already registered. Please sign in instead.",
+              variant: "destructive",
             });
-            
-            navigate("/onboarding");
+            return;
           }
-        } catch (error: any) {
-          // Let any other errors bubble up to the main error handler
-          throw error;
+          throw signUpError;
+        }
+
+        if (authData.user) {
+          // Wait for the profile trigger to complete
+          await new Promise(resolve => setTimeout(resolve, 2000));
+
+          toast({
+            title: "Success",
+            description: "Account created successfully! Please check your email to verify your account.",
+          });
+          
+          navigate("/onboarding");
         }
       }
     } catch (error: any) {

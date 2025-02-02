@@ -29,13 +29,24 @@ export const AuthForm = ({ onSubmit, loading }: AuthFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!isLogin && formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match",
-        variant: "destructive",
-      });
-      return;
+    if (!isLogin) {
+      if (!formData.username || !formData.fullName) {
+        toast({
+          title: "Error",
+          description: "Please fill in all required fields",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      if (formData.password !== formData.confirmPassword) {
+        toast({
+          title: "Error",
+          description: "Passwords do not match",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     await onSubmit(formData, isLogin);
@@ -46,7 +57,7 @@ export const AuthForm = ({ onSubmit, loading }: AuthFormProps) => {
       <h2 className="text-3xl font-bold text-center">
         {isLogin ? "Welcome Back" : "Create Account"}
       </h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 mt-8">
         {!isLogin && (
           <>
             <div className="space-y-2">
@@ -110,6 +121,7 @@ export const AuthForm = ({ onSubmit, loading }: AuthFormProps) => {
                 setFormData({ ...formData, password: e.target.value })
               }
               required
+              minLength={6}
             />
           </div>
         </div>
@@ -127,6 +139,7 @@ export const AuthForm = ({ onSubmit, loading }: AuthFormProps) => {
                   setFormData({ ...formData, confirmPassword: e.target.value })
                 }
                 required
+                minLength={6}
               />
             </div>
           </div>
@@ -143,7 +156,7 @@ export const AuthForm = ({ onSubmit, loading }: AuthFormProps) => {
             : "Create Account"}
         </Button>
       </form>
-      <div className="text-center">
+      <div className="text-center mt-4">
         <button
           onClick={() => setIsLogin(!isLogin)}
           className="text-sm text-primary hover:underline"
