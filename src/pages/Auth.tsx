@@ -44,7 +44,7 @@ const Auth = () => {
           .from('profiles')
           .select('*')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
         if (profileError) {
           console.error("Error fetching profile:", profileError);
@@ -60,7 +60,7 @@ const Auth = () => {
           .from('onboarding_status')
           .select('*')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
 
         if (onboardingError) {
           console.error("Error fetching onboarding status:", onboardingError);
@@ -110,11 +110,15 @@ const Auth = () => {
           .from('profiles')
           .select('*')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
-        if (profileError || !profile) {
+        if (profileError) {
           console.error("Profile creation error:", profileError);
           throw new Error("Failed to create user profile. Please try again.");
+        }
+
+        if (!profile) {
+          throw new Error("Profile creation pending. Please try signing in after a few moments.");
         }
 
         toast({
