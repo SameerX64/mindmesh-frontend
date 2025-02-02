@@ -52,6 +52,22 @@ const NotesEditor = () => {
         return;
       }
 
+      // First verify that the user's profile exists
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', session.user.id)
+        .maybeSingle();
+
+      if (profileError || !profile) {
+        toast({
+          title: "Error",
+          description: "Your profile is not set up properly. Please try logging out and back in.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       if (selectedNote) {
         const { error } = await supabase
           .from('notes')
@@ -62,7 +78,9 @@ const NotesEditor = () => {
           })
           .eq('id', selectedNote.id);
 
-        if (error) throw error;
+        if (error) {
+          throw error;
+        }
       } else {
         const { error } = await supabase
           .from('notes')
@@ -72,7 +90,9 @@ const NotesEditor = () => {
             user_id: session.user.id 
           }]);
 
-        if (error) throw error;
+        if (error) {
+          throw error;
+        }
       }
 
       toast({
@@ -85,9 +105,10 @@ const NotesEditor = () => {
       setSelectedNote(null);
       refetch();
     } catch (error: any) {
+      console.error("Error saving note:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to save note. Please try again.",
         variant: "destructive",
       });
     }
@@ -115,9 +136,10 @@ const NotesEditor = () => {
 
       refetch();
     } catch (error: any) {
+      console.error("Error deleting note:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to delete note. Please try again.",
         variant: "destructive",
       });
     }
