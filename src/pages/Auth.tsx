@@ -57,23 +57,29 @@ const Auth = () => {
 
         if (signUpError) throw signUpError;
 
-        // If signup successful
+        // If signup successful and we have a user
         if (authData.user) {
+          // Wait a moment for the trigger to create the profile
+          await new Promise(resolve => setTimeout(resolve, 1000));
+
           // Create initial onboarding status
           const { error: onboardingError } = await supabase
             .from('onboarding_status')
             .insert([
               { 
                 user_id: authData.user.id,
-                is_completed: false 
+                is_completed: false,
+                created_at: new Date().toISOString()
               }
-            ]);
+            ])
+            .select()
+            .single();
 
           if (onboardingError) {
             console.error("Error creating onboarding status:", onboardingError);
             toast({
-              title: "Error",
-              description: "Failed to create onboarding status",
+              title: "Warning",
+              description: "Account created but onboarding status not set. Please try logging in.",
               variant: "destructive",
             });
             return;
