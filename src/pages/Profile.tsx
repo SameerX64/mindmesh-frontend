@@ -38,7 +38,15 @@ const Profile = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("basic-info");
 
-  const { data: profile, isLoading: profileLoading } = useQuery({
+  const { data: session } = useQuery({
+    queryKey: ["session"],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    },
+  });
+
+  const { data: profile, isLoading: profileLoading, error: profileError } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -48,44 +56,89 @@ const Profile = () => {
         .from("profiles")
         .select("*")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching profile:', error);
+        throw error;
+      }
+
+      if (!data) {
+        throw new Error("Profile not found");
+      }
+
       return data as Profile;
     },
+    enabled: !!session?.user?.id,
+    retry: false,
   });
 
-  const { data: achievements, isLoading: achievementsLoading } = useQuery({
+  const { data: achievements, isLoading: achievementsLoading, error: achievementsError } = useQuery({
     queryKey: ["achievements"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
+      if (!profile?.id) throw new Error("No profile found");
 
       const { data, error } = await supabase
         .from("achievements")
         .select("*")
-        .eq("user_id", user.id);
+        .eq("user_id", profile.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching achievements:', error);
+        throw error;
+      }
+
       return data as Achievement[];
     },
+    enabled: !!profile?.id,
+    retry: false,
   });
 
+  useEffect(() => {
+    if (!session) {
+      navigate('/auth');
+    }
+  }, [session, navigate]);
+
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      navigate("/auth");
+    } catch (error: any) {
+      console.error('Error signing out:', error);
       toast({
         title: "Error",
-        description: "Failed to log out. Please try again.",
+        description: error.message || "Failed to log out. Please try again.",
         variant: "destructive",
       });
-    } else {
-      navigate("/auth");
     }
   };
 
   if (profileLoading || achievementsLoading) {
     return <div>Loading...</div>;
+  }
+
+  if (profileError || achievementsError) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <Card className="glass">
+          <CardContent className="p-6">
+            <p className="text-center text-red-500">
+              {profileError?.message || achievementsError?.message || "An error occurred. Please try refreshing the page."}
+            </p>
+            <Button
+              variant="destructive"
+              className="w-full mt-4"
+              onClick={handleLogout}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout and Try Again
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (

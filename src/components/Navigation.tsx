@@ -21,7 +21,7 @@ const Navigation = () => {
   });
 
   // First check/create profile
-  const { data: profile } = useQuery({
+  const { data: profile, error: profileError } = useQuery({
     queryKey: ['profile', session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return null;
@@ -34,12 +34,27 @@ const Navigation = () => {
       
       if (profileError) {
         console.error('Error fetching profile:', profileError);
-        throw profileError;
+        toast({
+          title: "Error",
+          description: "Failed to fetch profile. Please try logging out and back in.",
+          variant: "destructive",
+        });
+        return null;
+      }
+
+      if (!existingProfile) {
+        toast({
+          title: "Error",
+          description: "Profile not found. Please try logging out and back in.",
+          variant: "destructive",
+        });
+        return null;
       }
 
       return existingProfile;
     },
     enabled: !!session?.user?.id,
+    retry: false,
   });
 
   // Then check/create onboarding status
@@ -56,12 +71,18 @@ const Navigation = () => {
       
       if (statusError) {
         console.error('Error fetching onboarding status:', statusError);
-        throw statusError;
+        toast({
+          title: "Error",
+          description: "Failed to fetch onboarding status. Please try refreshing the page.",
+          variant: "destructive",
+        });
+        return null;
       }
 
       return existingStatus;
     },
     enabled: !!profile?.id,
+    retry: false,
   });
 
   // Handle navigation based on auth and onboarding status
@@ -71,12 +92,14 @@ const Navigation = () => {
 
     if (!session && !publicRoutes.includes(currentPath)) {
       navigate('/auth');
+    } else if (session && profileError) {
+      navigate('/auth');
     } else if (session && onboardingStatus && !onboardingStatus.is_completed && currentPath !== '/onboarding') {
       navigate('/onboarding');
     } else if (session && onboardingStatus?.is_completed && currentPath === '/onboarding') {
       navigate('/dashboard');
     }
-  }, [session, onboardingStatus, navigate, location.pathname]);
+  }, [session, onboardingStatus, profileError, navigate, location.pathname]);
 
   // Don't show navigation on auth page or if onboarding is not completed
   if (!session || (onboardingStatus && !onboardingStatus.is_completed)) {
@@ -89,9 +112,10 @@ const Navigation = () => {
       if (error) throw error;
       navigate('/auth');
     } catch (error: any) {
+      console.error('Error signing out:', error);
       toast({
         title: "Error signing out",
-        description: error.message,
+        description: error.message || "Failed to sign out. Please try again.",
         variant: "destructive",
       });
     }

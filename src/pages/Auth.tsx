@@ -89,7 +89,7 @@ const Auth = () => {
             return;
           }
 
-          // Create initial onboarding status with explicit user_id
+          // Create initial onboarding status
           const { error: onboardingError } = await supabase
             .from('onboarding_status')
             .insert([
@@ -121,9 +121,10 @@ const Auth = () => {
         }
       }
     } catch (error: any) {
+      console.error("Auth error:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "An error occurred during authentication. Please try again.",
         variant: "destructive",
       });
     } finally {
