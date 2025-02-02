@@ -23,9 +23,9 @@ const HackathonAlert = () => {
   }, []);
 
   const hackathons = [
-    { name: "CogniHack 2024", date: "March 15, 2024" },
-    { name: "AI Learning Challenge", date: "April 1, 2024" },
-    { name: "EdTech Innovation", date: "April 20, 2024" },
+    { name: "CogniHack 2025", date: "March 15, 2025" },
+    { name: "AI Learning Challenge 2025", date: "April 1, 2025" },
+    { name: "EdTech Innovation 2025", date: "April 20, 2025" },
   ];
 
   return (

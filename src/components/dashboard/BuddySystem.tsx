@@ -12,16 +12,22 @@ import { Trophy, Users } from "lucide-react";
 const BuddySystem = () => {
   const competitions = [
     {
-      competitor: "Alex Chen",
+      competitor: "Raj Kumar",
       status: "Win",
       score: 95,
       rating: 1850,
     },
     {
-      competitor: "Sarah Kim",
+      competitor: "Manish Sharma",
       status: "Loss",
       score: 85,
       rating: 1750,
+    },
+    {
+      competitor: "Rajat Verma",
+      status: "Win",
+      score: 88,
+      rating: 1798,
     },
   ];
 

@@ -13,6 +13,11 @@ const CourseProgress = () => {
       progress: 60,
       quizzes: 5,
     },
+    {
+      name: "Cloud Computing",
+      progress: 45,
+      quizzes: 7,
+    },
   ];
 
   return (
