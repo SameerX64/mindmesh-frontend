@@ -26,12 +26,35 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error: signInError } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
         });
 
-        if (error) throw error;
+        if (signInError) throw signInError;
+
+        // After sign in, verify the profile exists
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          throw new Error("No user found after login");
+        }
+
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (profileError) {
+          console.error("Error fetching profile:", profileError);
+          throw new Error("Failed to verify user profile");
+        }
+
+        if (!profile) {
+          throw new Error("Profile not found. Please contact support.");
+        }
+
         navigate("/dashboard");
       } else {
         if (formData.password !== formData.confirmPassword) {
