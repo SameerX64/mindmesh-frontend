@@ -52,19 +52,51 @@ const Auth = () => {
         navigate("/dashboard");
       } else {
         // Sign up flow
-        const { data: authData, error: signUpError } = await supabase.auth.signUp({
-          email: formData.email,
-          password: formData.password,
-          options: {
-            data: {
-              username: formData.username,
-              full_name: formData.fullName,
+        try {
+          const { data: authData, error: signUpError } = await supabase.auth.signUp({
+            email: formData.email,
+            password: formData.password,
+            options: {
+              data: {
+                username: formData.username,
+                full_name: formData.fullName,
+              },
             },
-          },
-        });
+          });
 
-        if (signUpError) {
-          if (signUpError.message === "User already registered") {
+          if (signUpError) throw signUpError;
+
+          if (authData.user) {
+            // Wait for the profile trigger to complete
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Create initial onboarding status
+            const { error: onboardingError } = await supabase
+              .from('onboarding_status')
+              .insert([
+                { 
+                  user_id: authData.user.id,
+                  is_completed: false,
+                  created_at: new Date().toISOString()
+                }
+              ]);
+
+            if (onboardingError) {
+              console.error("Error creating onboarding status:", onboardingError);
+              throw new Error("Failed to initialize onboarding");
+            }
+
+            toast({
+              title: "Success",
+              description: "Account created successfully! Please check your email to verify your account.",
+            });
+            
+            navigate("/onboarding");
+          }
+        } catch (error: any) {
+          // Check if the error is due to user already existing
+          if (error.message?.includes("User already registered") || 
+              error.message?.toLowerCase()?.includes("already exists")) {
             toast({
               title: "Account Exists",
               description: "An account with this email already exists. Please sign in instead.",
@@ -72,35 +104,7 @@ const Auth = () => {
             });
             return;
           }
-          throw signUpError;
-        }
-
-        if (authData.user) {
-          // Wait for the profile trigger to complete
-          await new Promise(resolve => setTimeout(resolve, 2000));
-
-          // Create initial onboarding status
-          const { error: onboardingError } = await supabase
-            .from('onboarding_status')
-            .insert([
-              { 
-                user_id: authData.user.id,
-                is_completed: false,
-                created_at: new Date().toISOString()
-              }
-            ]);
-
-          if (onboardingError) {
-            console.error("Error creating onboarding status:", onboardingError);
-            throw new Error("Failed to initialize onboarding");
-          }
-
-          toast({
-            title: "Success",
-            description: "Account created successfully! Please check your email to verify your account.",
-          });
-          
-          navigate("/onboarding");
+          throw error; // Re-throw other errors to be caught by outer catch block
         }
       }
     } catch (error: any) {
