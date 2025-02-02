@@ -20,12 +20,18 @@ const Auth = () => {
 
     try {
       if (isLogin) {
+        // Sign in flow
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
         });
 
-        if (signInError) throw signInError;
+        if (signInError) {
+          if (signInError.message.includes('Invalid login credentials')) {
+            throw new Error('Invalid email or password. Please try again.');
+          }
+          throw signInError;
+        }
 
         // After sign in, verify the profile exists
         const { data: { user } } = await supabase.auth.getUser();
@@ -38,7 +44,7 @@ const Auth = () => {
           .from('profiles')
           .select('*')
           .eq('id', user.id)
-          .maybeSingle();
+          .single();
 
         if (profileError) {
           console.error("Error fetching profile:", profileError);
@@ -46,7 +52,7 @@ const Auth = () => {
         }
 
         if (!profile) {
-          throw new Error("Profile not found. Please contact support.");
+          throw new Error("Profile not found. Please try signing up first.");
         }
 
         // Check onboarding status
@@ -54,7 +60,7 @@ const Auth = () => {
           .from('onboarding_status')
           .select('*')
           .eq('user_id', user.id)
-          .maybeSingle();
+          .single();
 
         if (onboardingError) {
           console.error("Error fetching onboarding status:", onboardingError);
@@ -74,7 +80,7 @@ const Auth = () => {
         });
       } else {
         // Sign up flow
-        const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        const { data: { user }, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
           options: {
@@ -86,34 +92,42 @@ const Auth = () => {
         });
 
         if (signUpError) {
-          const errorMessage = signUpError.message?.toLowerCase() || '';
-          if (errorMessage.includes('already registered') || errorMessage.includes('already exists')) {
-            toast({
-              title: "Account Already Exists",
-              description: "This email is already registered. Please sign in instead.",
-              variant: "destructive",
-            });
-            return;
+          if (signUpError.message.toLowerCase().includes('already registered')) {
+            throw new Error('This email is already registered. Please sign in instead.');
           }
           throw signUpError;
         }
 
-        if (authData.user) {
-          // Wait for the profile trigger to complete
-          await new Promise(resolve => setTimeout(resolve, 2000));
-
-          toast({
-            title: "Success",
-            description: "Account created successfully! Please check your email to verify your account.",
-          });
-          
-          navigate("/onboarding");
+        if (!user) {
+          throw new Error('Failed to create account. Please try again.');
         }
+
+        // Wait for the profile trigger to complete
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // Verify profile creation
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError || !profile) {
+          console.error("Profile creation error:", profileError);
+          throw new Error("Failed to create user profile. Please try again.");
+        }
+
+        toast({
+          title: "Account created!",
+          description: "Please check your email to verify your account before signing in.",
+        });
+        
+        // Don't navigate automatically after signup - user needs to verify email
       }
     } catch (error: any) {
       console.error("Auth error:", error);
       toast({
-        title: "Error",
+        title: "Authentication Error",
         description: error.message || "An error occurred during authentication",
         variant: "destructive",
       });
