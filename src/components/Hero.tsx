@@ -1,5 +1,6 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, LogIn, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const Hero = () => {
   return (
@@ -14,20 +15,28 @@ const Hero = () => {
           <p className="max-w-2xl mx-auto text-xl text-muted-foreground">
             Transform your learning journey with personalized quizzes, research assistance, and intelligent performance tracking.
           </p>
-          <div className="flex justify-center gap-4">
-            <Link
-              to="/auth"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Button
+              asChild
+              size="lg"
+              className="group"
             >
-              Create Account
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              to="/auth"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border hover:bg-accent hover:text-accent-foreground transition-colors"
+              <Link to="/auth?mode=signup">
+                <UserPlus className="mr-2 h-5 w-5" />
+                Create Account
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
             >
-              Sign In
-            </Link>
+              <Link to="/auth?mode=signin">
+                <LogIn className="mr-2 h-5 w-5" />
+                Sign In
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
