@@ -64,7 +64,20 @@ const Auth = () => {
             },
           });
 
-          if (signUpError) throw signUpError;
+          // Check for user already exists error specifically
+          if (signUpError) {
+            const errorMessage = signUpError.message?.toLowerCase() || '';
+            if (errorMessage.includes('already registered') || errorMessage.includes('already exists')) {
+              toast({
+                title: "Account Already Exists",
+                description: "This email is already registered. Please sign in instead.",
+                variant: "destructive",
+              });
+              setLoading(false);
+              return;
+            }
+            throw signUpError;
+          }
 
           if (authData.user) {
             // Wait for the profile trigger to complete
@@ -94,17 +107,8 @@ const Auth = () => {
             navigate("/onboarding");
           }
         } catch (error: any) {
-          // Check if the error is due to user already existing
-          if (error.message?.includes("User already registered") || 
-              error.message?.toLowerCase()?.includes("already exists")) {
-            toast({
-              title: "Account Exists",
-              description: "An account with this email already exists. Please sign in instead.",
-              variant: "destructive",
-            });
-            return;
-          }
-          throw error; // Re-throw other errors to be caught by outer catch block
+          // Let any other errors bubble up to the main error handler
+          throw error;
         }
       }
     } catch (error: any) {
