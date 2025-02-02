@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail, Lock, User } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface AuthFormProps {
   onSubmit: (formData: {
@@ -16,6 +17,7 @@ interface AuthFormProps {
 
 export const AuthForm = ({ onSubmit, loading }: AuthFormProps) => {
   const [isLogin, setIsLogin] = useState(true);
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
