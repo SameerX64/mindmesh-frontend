@@ -32,7 +32,7 @@ const Auth = () => {
         });
 
         if (error) throw error;
-        navigate("/");
+        navigate("/dashboard");
       } else {
         if (formData.password !== formData.confirmPassword) {
           toast({
@@ -59,10 +59,10 @@ const Auth = () => {
 
         // If signup successful and we have a user
         if (authData.user) {
-          // Wait a moment for the trigger to create the profile
+          // Wait for the trigger to create the profile
           await new Promise(resolve => setTimeout(resolve, 1000));
 
-          // Create initial onboarding status
+          // Create initial onboarding status with explicit user_id
           const { error: onboardingError } = await supabase
             .from('onboarding_status')
             .insert([
@@ -72,14 +72,14 @@ const Auth = () => {
                 created_at: new Date().toISOString()
               }
             ])
-            .select()
+            .select('*')
             .single();
 
           if (onboardingError) {
             console.error("Error creating onboarding status:", onboardingError);
             toast({
               title: "Warning",
-              description: "Account created but onboarding status not set. Please try logging in.",
+              description: "Account created but there was an issue with onboarding setup. Please try logging in.",
               variant: "destructive",
             });
             return;
