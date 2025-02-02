@@ -78,7 +78,19 @@ const Auth = () => {
           },
         });
 
-        if (signUpError) throw signUpError;
+        if (signUpError) {
+          // Check specifically for user already exists error
+          if (signUpError.message === "User already registered") {
+            toast({
+              title: "Account Exists",
+              description: "An account with this email already exists. Please sign in instead.",
+              variant: "destructive",
+            });
+            setIsLogin(true); // Switch to login mode
+            return;
+          }
+          throw signUpError;
+        }
 
         // If signup successful and we have a user
         if (authData.user) {
