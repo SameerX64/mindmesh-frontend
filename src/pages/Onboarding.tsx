@@ -80,7 +80,7 @@ const Onboarding = () => {
         description: "Your preferences have been saved. Welcome to CogniLearn!",
       });
 
-      // Redirect to dashboard after successful completion
+      // Immediately redirect to dashboard after successful completion
       navigate("/dashboard");
     } catch (error: any) {
       console.error("Onboarding error:", error);
