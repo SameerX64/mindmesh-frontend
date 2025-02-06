@@ -42,7 +42,7 @@ const Onboarding = () => {
     if (!session) {
       navigate("/auth");
     } else if (onboardingStatus?.is_completed) {
-      navigate("/dashboard");
+      navigate("/course"); // Changed from /dashboard to /course
     }
   }, [session, onboardingStatus, navigate]);
 
@@ -81,8 +81,8 @@ const Onboarding = () => {
         description: "Your preferences have been saved. Welcome to CogniLearn!",
       });
 
-      // Immediately redirect to dashboard after successful completion
-      navigate("/dashboard");
+      // Immediately redirect to course page after successful completion
+      navigate("/course");
     } catch (error: any) {
       console.error("Onboarding error:", error);
       toast({
