@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -49,7 +50,7 @@ const Onboarding = () => {
     try {
       if (!session?.user) throw new Error("No user found");
 
-      // Save onboarding responses with explicit user_id
+      // Save onboarding responses
       const { error: responseError } = await supabase
         .from("onboarding_responses")
         .insert({

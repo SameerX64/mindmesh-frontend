@@ -272,6 +272,7 @@ export type Database = {
           completed_at: string
           daily_time: string | null
           domain_interests: string[] | null
+          experience_level: string | null
           id: string
           learning_goals: string[] | null
           learning_style: string[] | null
@@ -282,6 +283,7 @@ export type Database = {
           completed_at?: string
           daily_time?: string | null
           domain_interests?: string[] | null
+          experience_level?: string | null
           id?: string
           learning_goals?: string[] | null
           learning_style?: string[] | null
@@ -292,6 +294,7 @@ export type Database = {
           completed_at?: string
           daily_time?: string | null
           domain_interests?: string[] | null
+          experience_level?: string | null
           id?: string
           learning_goals?: string[] | null
           learning_style?: string[] | null
