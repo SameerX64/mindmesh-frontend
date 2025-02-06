@@ -276,6 +276,7 @@ export type Database = {
           id: string
           learning_goals: string[] | null
           learning_style: string[] | null
+          programming_interests: string[] | null
           specific_goals: string | null
           user_id: string | null
         }
@@ -287,6 +288,7 @@ export type Database = {
           id?: string
           learning_goals?: string[] | null
           learning_style?: string[] | null
+          programming_interests?: string[] | null
           specific_goals?: string | null
           user_id?: string | null
         }
@@ -298,6 +300,7 @@ export type Database = {
           id?: string
           learning_goals?: string[] | null
           learning_style?: string[] | null
+          programming_interests?: string[] | null
           specific_goals?: string | null
           user_id?: string | null
         }
