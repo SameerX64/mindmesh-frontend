@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,10 +55,10 @@ export const AuthForm = ({ onSubmit, loading }: AuthFormProps) => {
 
   return (
     <>
-      <h2 className="text-3xl font-bold text-center">
-        {isLogin ? "Welcome Back" : "Create Account"}
+      <h2 className="text-2xl font-bold text-center">
+        {isLogin ? "Sign In" : "Create Account"}
       </h2>
-      <form onSubmit={handleSubmit} className="space-y-4 mt-8">
+      <form onSubmit={handleSubmit} className="space-y-4 mt-6">
         {!isLogin && (
           <>
             <div className="space-y-2">
@@ -158,6 +159,7 @@ export const AuthForm = ({ onSubmit, loading }: AuthFormProps) => {
       </form>
       <div className="text-center mt-4">
         <button
+          type="button"
           onClick={() => setIsLogin(!isLogin)}
           className="text-sm text-primary hover:underline"
         >
