@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -11,6 +12,7 @@ import Profile from "@/pages/Profile";
 import Quiz from "@/pages/Quiz";
 import Course from "@/pages/Course";
 import Notes from "@/pages/Notes";
+import Summary from "@/pages/Summary";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -38,6 +40,7 @@ function App() {
             <Route path="/quiz" element={<Quiz />} />
             <Route path="/course" element={<Course />} />
             <Route path="/notes" element={<Notes />} />
+            <Route path="/summary" element={<Summary />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>

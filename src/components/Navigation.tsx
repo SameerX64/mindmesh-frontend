@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Star, Sprout, Users, GraduationCap } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -11,7 +11,6 @@ const Navigation = () => {
   const location = useLocation();
   const { toast } = useToast();
   
-  // Check authentication and onboarding status
   const { data: session } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
@@ -20,7 +19,6 @@ const Navigation = () => {
     },
   });
 
-  // First check/create profile
   const { data: profile, error: profileError } = useQuery({
     queryKey: ['profile', session?.user?.id],
     queryFn: async () => {
@@ -57,7 +55,6 @@ const Navigation = () => {
     retry: false,
   });
 
-  // Then check/create onboarding status
   const { data: onboardingStatus } = useQuery({
     queryKey: ['onboardingStatus', profile?.id],
     queryFn: async () => {
@@ -85,7 +82,6 @@ const Navigation = () => {
     retry: false,
   });
 
-  // Handle navigation based on auth and onboarding status
   useEffect(() => {
     const publicRoutes = ['/auth', '/'];
     const currentPath = location.pathname;
@@ -101,7 +97,6 @@ const Navigation = () => {
     }
   }, [session, onboardingStatus, profileError, navigate, location.pathname]);
 
-  // Don't show navigation on auth page or if onboarding is not completed
   if (!session || (onboardingStatus && !onboardingStatus.is_completed)) {
     return null;
   }
@@ -126,6 +121,7 @@ const Navigation = () => {
     { name: "Course", path: "/course" },
     { name: "Quiz", path: "/quiz" },
     { name: "Notes", path: "/notes" },
+    { name: "Summary", path: "/summary", icon: <Star className="h-4 w-4" /> },
     { name: "Profile", path: "/profile" },
   ];
 
@@ -145,8 +141,9 @@ const Navigation = () => {
                 <Link
                   key={item.name}
                   to={item.path}
-                  className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-white/10 hover:text-white"
+                  className="px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-white/10 hover:text-white flex items-center gap-1"
                 >
+                  {item.icon && item.icon}
                   {item.name}
                 </Link>
               ))}
@@ -177,9 +174,10 @@ const Navigation = () => {
               <Link
                 key={item.name}
                 to={item.path}
-                className="block px-3 py-2 rounded-md text-base font-medium hover:bg-white/10 hover:text-white"
+                className="flex items-center gap-1 px-3 py-2 rounded-md text-base font-medium hover:bg-white/10 hover:text-white"
                 onClick={() => setIsOpen(false)}
               >
+                {item.icon && item.icon}
                 {item.name}
               </Link>
             ))}
